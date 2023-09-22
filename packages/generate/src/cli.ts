@@ -13,7 +13,7 @@ import {
 import { generateQueryBuilder } from "./edgeql-js";
 import { runInterfacesGenerator } from "./interfaces";
 import { exitWithError } from "./genutil";
-import { generateQueryFiles } from "./queries";
+import { generateQueryFiles } from "./queriesRescript";
 
 const { path, readFileUtf8, exists } = adapter;
 

@@ -12,6 +12,7 @@ import { TupleCodec } from "../codecs/tuple";
 import { Cardinality, OutputFormat } from "../ifaces";
 import { Options, Session } from "../options";
 import type { Client, BaseClientPool } from "../baseClient";
+import { walkCodecRescript } from "../rescript";
 
 type QueryType = {
   args: string;
@@ -19,6 +20,7 @@ type QueryType = {
   cardinality: Cardinality;
   query: string;
   imports: Set<string>;
+  distinctTypes: Set<string>;
 };
 
 export async function analyzeQuery(
@@ -45,17 +47,22 @@ export async function analyzeQuery(
   const inCodec = parseResult[1];
   const outCodec = parseResult[2];
   const imports = new Set<string>();
-  const args = walkCodec(inCodec, {
+  const distinctTypes = new Set<string>();
+  const args = walkCodecRescript(inCodec, {
     indent: "",
     optionalNulls: true,
     imports,
+    distinctTypes,
+    currentPath: ["args"],
   });
 
   const result = generateSetType(
-    walkCodec(outCodec, {
+    walkCodecRescript(outCodec, {
       indent: "",
       optionalNulls: false,
       imports,
+      distinctTypes,
+      currentPath: ["response"],
     }),
     cardinality
   );
@@ -66,6 +73,7 @@ export async function analyzeQuery(
     cardinality,
     query,
     imports,
+    distinctTypes,
   };
 }
 
@@ -85,7 +93,7 @@ function generateSetType(type: string, cardinality: Cardinality): string {
 
 // type AtLeastOne<T> = [T, ...T[]];
 
-function walkCodec(
+function _walkCodec(
   codec: ICodec,
   ctx: { indent: string; optionalNulls: boolean; imports: Set<string> }
 ): string {
