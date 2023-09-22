@@ -93,7 +93,8 @@ function generateSetType(type: string, cardinality: Cardinality): string {
 
 // type AtLeastOne<T> = [T, ...T[]];
 
-function _walkCodec(
+// @ts-ignore
+function walkCodec(
   codec: ICodec,
   ctx: { indent: string; optionalNulls: boolean; imports: Set<string> }
 ): string {
